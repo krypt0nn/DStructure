@@ -160,7 +160,7 @@ class Structure
     {
         foreach ($this->index['refs'] as $reference)
             foreach ($this->references[$reference] as $item)
-                $callable (new Item (unserialize ($this->xor (file_get_contents (
+                $callable (new Item ($this->objects[$item] ?? unserialize ($this->xor (file_get_contents (
                     $this->path . DS .'objects'. DS . substr ($item, 0, 2) . DS . $item)))));
 
         return $this;
@@ -179,7 +179,7 @@ class Structure
 
         foreach ($this->index['refs'] as $reference)
             foreach ($this->references[$reference] as $item)
-                if ($comparator ($item = new Item (unserialize ($this->xor (file_get_contents (
+                if ($comparator ($item = new Item ($this->objects[$item] ?? unserialize ($this->xor (file_get_contents (
                     $this->path . DS .'objects'. DS . substr ($item, 0, 2) . DS . $item))))))
                         $items[] = $item;
 
@@ -208,6 +208,7 @@ class Structure
      */
     public function list (): array
     {
+        // TODO: fn () => true как только релизнится PHP 7.4
         return $this->where (function () { return true; });
     }
 
