@@ -74,7 +74,7 @@ class Structure
             if (!file_exists ($file = $this->path . DS .'objects'. DS . $prefix . DS . $name))
                 return null;
             
-            $this->objects[$name] = unserialize ($this->xor (file_get_contents ($file)));
+            $this->objects[$name] = unserialize ($this->xor (gzinflate (file_get_contents ($file))));
         }
         
         return new Item ($this->objects[$name]);
@@ -160,8 +160,8 @@ class Structure
     {
         foreach ($this->index['refs'] as $reference)
             foreach ($this->references[$reference] as $item)
-                $callable (new Item ($this->objects[$item] ?? unserialize ($this->xor (file_get_contents (
-                    $this->path . DS .'objects'. DS . substr ($item, 0, 2) . DS . $item)))));
+                $callable (new Item ($this->objects[$item] ?? unserialize ($this->xor (file_get_contents (gzinflate (
+                    $this->path . DS .'objects'. DS . substr ($item, 0, 2) . DS . $item))))));
 
         return $this;
     }
@@ -179,9 +179,10 @@ class Structure
 
         foreach ($this->index['refs'] as $reference)
             foreach ($this->references[$reference] as $item)
-                if ($comparator ($item = new Item ($this->objects[$item] ?? unserialize ($this->xor (file_get_contents (
-                    $this->path . DS .'objects'. DS . substr ($item, 0, 2) . DS . $item))))))
-                        $items[] = $item;
+                if ($comparator ($item = new Item ($this->objects[$item] ??
+                    unserialize ($this->xor (file_get_contents (gzinflate (
+                        $this->path . DS .'objects'. DS . substr ($item, 0, 2) . DS . $item)))))))
+                            $items[] = $item;
 
         return $items;
     }
@@ -286,7 +287,7 @@ class Structure
             if (!file_exists ($idpath = $objects . DS . substr ($id, 0, 2)))
                 mkdir ($idpath);
 
-            file_put_contents ($idpath . DS . $id, $this->xor (serialize ($object)));
+            file_put_contents ($idpath . DS . $id, gzdeflate ($this->xor (serialize ($object)), 9));
         }
 
         return $this;
