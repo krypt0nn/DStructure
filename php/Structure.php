@@ -160,7 +160,7 @@ class Structure
     {
         foreach ($this->index['refs'] as $reference)
             foreach ($this->references[$reference] as $item)
-                $callable (new Item ($this->objects[$item] ?? unserialize ($this->xor (file_get_contents (gzinflate (
+                $callable (new Item ($this->objects[$item] ?? unserialize ($this->xor (gzinflate (file_get_contents (
                     $this->path . DS .'objects'. DS . substr ($item, 0, 2) . DS . $item))))));
 
         return $this;
@@ -180,7 +180,7 @@ class Structure
         foreach ($this->index['refs'] as $reference)
             foreach ($this->references[$reference] as $item)
                 if ($comparator ($item = new Item ($this->objects[$item] ??
-                    unserialize ($this->xor (file_get_contents (gzinflate (
+                    unserialize ($this->xor (gzinflate (file_get_contents (
                         $this->path . DS .'objects'. DS . substr ($item, 0, 2) . DS . $item)))))))
                             $items[] = $item;
 
