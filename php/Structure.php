@@ -30,9 +30,10 @@ class Structure
     protected ?string $key  = null;
     protected string $hash  = 'sha1';
 
-    protected array $index = [];
+    protected array $index      = [];
     protected array $references = [];
-    protected array $objects = [];
+    protected array $objects    = [];
+    protected array $toRemove   = [];
 
     /**
      * @throws \Exception
@@ -145,6 +146,8 @@ class Structure
 
             $this->index['refs'] = array_diff ($this->index['refs'], [$prefix]);
         }
+
+        $this->toRemove[$name] = $prefix;
 
         return $this;
     }
@@ -289,6 +292,22 @@ class Structure
 
             file_put_contents ($idpath . DS . $id, gzdeflate ($this->xor (serialize ($object)), 9));
         }
+
+        foreach ($this->toRemove as $name => $prefix)
+            if (file_exists ($object = $objects . DS . $prefix . DS . $name) &&
+                (!isset ($this->references[$prefix]) ||
+                !in_array ($name, $this->references[$prefix])))
+                {
+                    unlink ($object);
+
+                    if (!isset ($this->references[$prefix]) || sizeof ($this->references[$prefix]) == 0)
+                    {
+                        rmdir (dirname ($object));
+                        unlink ($refs . DS . $prefix .'.json');
+                    }
+                }
+
+        $this->toRemove = [];
 
         return $this;
     }
